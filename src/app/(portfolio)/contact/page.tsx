@@ -1,3 +1,5 @@
+// src/app/(portfolio)/contact/page.tsx
+
 import React from "react";
 import GitHubIcon from "@/components/icons/GitHubIcon";
 import LinkedInIcon from "@/components/icons/LinkedInIcon";
@@ -28,7 +30,8 @@ export default function ContactPage() {
             <div className="max-w-6xl mx-auto py-16 px-6">
                 <div className="text-center mb-16">
                     <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900">Get In Touch</h1>
-                    <p className="mt-4 text-lg text-gray-600">I'm here to help. Have a question or a project in mind? Let's talk.</p>
+                    {/* UPDATED: Replaced ' with &apos; to fix the linting error */}
+                    <p className="mt-4 text-lg text-gray-600">I&apos;m here to help. Have a question or a project in mind? Let&apos;s talk.</p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-16 items-start">
