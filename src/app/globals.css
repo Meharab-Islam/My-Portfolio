@@ -52,3 +52,38 @@ button,
 input[type="submit"] {
   cursor: none;
 }
+
+/* File: src/app/globals.css */
+
+/* ... your existing @tailwind imports ... */
+
+
+/* --- Add this code below --- */
+
+/* Animated Aurora Background for the Hero Section */
+.animated-aurora {
+  background: radial-gradient(ellipse at top, #1b2735 0%, #090a0f 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes move-aurora {
+  0% { transform: translate(-50%, -50%) rotate(0deg) scale(1.5); }
+  100% { transform: translate(-50%, -50%) rotate(360deg) scale(1.5); }
+}
+
+.animated-aurora::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150vw;
+  height: 150vh;
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(13, 110, 253, 0.3) 0%, transparent 25%),
+    radial-gradient(circle at 80% 30%, rgba(111, 66, 193, 0.3) 0%, transparent 25%),
+    radial-gradient(circle at 60% 80%, rgba(32, 201, 151, 0.2) 0%, transparent 25%);
+  mix-blend-mode: screen;
+  animation: move-aurora 60s linear infinite;
+  transform-origin: center center;
+}
