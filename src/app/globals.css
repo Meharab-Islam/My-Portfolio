@@ -47,3 +47,8 @@ body {
   width: 25px;
   height: 25px;
 }
+a,
+button,
+input[type="submit"] {
+  cursor: none;
+}

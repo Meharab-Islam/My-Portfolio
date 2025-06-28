@@ -11,49 +11,38 @@ export default function CustomCursor() {
     const requestRef = useRef<number | null>(null);
     const mousePosition = useRef({ x: 0, y: 0 });
     
-    // Re-introducing separate positions for the parallax effect
     const dotPosition = useRef({ x: 0, y: 0 });
     const outlinePosition = useRef({ x: 0, y: 0 });
 
-    // Different speeds for the dot and outline
-    const dotSpeed = 0.7;      // Smooth but responsive
-    const outlineSpeed = 0.15; // Slower and floatier
+    const dotSpeed = 0.7;
+    const outlineSpeed = 0.15;
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             mousePosition.current = { x: e.clientX, y: e.clientY };
         };
         
-        const handleMouseEnter = () => setIsHovering(true);
-        const handleMouseLeave = () => setIsHovering(false);
-
-        const handleMouseClick = (e: MouseEvent) => {
-            // UPDATED: Removed the loop to create only one wave
-            const ripple = document.createElement('div');
-            ripple.className = 'ripple';
-            document.body.appendChild(ripple);
-        
-            ripple.style.left = `${e.clientX - ripple.clientWidth / 2}px`;
-            ripple.style.top = `${e.clientY - ripple.clientHeight / 2}px`;
-            
-            // Automatically remove the element after its animation finishes
-            ripple.onanimationend = () => {
-                document.body.removeChild(ripple);
-            };
+        const handleMouseOver = (e: MouseEvent) => {
+            const target = e.target as Element;
+            if (target.closest('a, button, input[type="submit"]')) {
+                setIsHovering(true);
+            } else {
+                setIsHovering(false);
+            }
         };
-        
-        
 
         const animate = () => {
-            // Lerp dot position
             dotPosition.current.x += (mousePosition.current.x - dotPosition.current.x) * dotSpeed;
             dotPosition.current.y += (mousePosition.current.y - dotPosition.current.y) * dotSpeed;
 
-            // Lerp outline position
-            outlinePosition.current.x += (mousePosition.current.x - outlinePosition.current.x) * outlineSpeed;
-            outlinePosition.current.y += (mousePosition.current.y - outlinePosition.current.y) * outlineSpeed;
+            if (isHovering) {
+                outlinePosition.current.x = dotPosition.current.x;
+                outlinePosition.current.y = dotPosition.current.y;
+            } else {
+                outlinePosition.current.x += (mousePosition.current.x - outlinePosition.current.x) * outlineSpeed;
+                outlinePosition.current.y += (mousePosition.current.y - outlinePosition.current.y) * outlineSpeed;
+            }
 
-            // Apply the specific position to each element
             if (dotRef.current) {
                 dotRef.current.style.transform = `translate3d(${dotPosition.current.x}px, ${dotPosition.current.y}px, 0)`;
             }
@@ -67,39 +56,33 @@ export default function CustomCursor() {
         requestRef.current = requestAnimationFrame(animate);
 
         window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('click', handleMouseClick);
-        document.querySelectorAll('a, button, input[type="submit"]').forEach((el) => {
-            el.addEventListener('mouseenter', handleMouseEnter);
-            el.addEventListener('mouseleave', handleMouseLeave);
-        });
+        document.addEventListener('mouseover', handleMouseOver);
 
         return () => {
             if (requestRef.current) {
                 cancelAnimationFrame(requestRef.current);
             }
             window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('click', handleMouseClick);
-            document.querySelectorAll('a, button, input[type="submit"]').forEach((el) => {
-                el.removeEventListener('mouseenter', handleMouseEnter);
-                el.removeEventListener('mouseleave', handleMouseLeave);
-            });
+            document.removeEventListener('mouseover', handleMouseOver);
         };
-    }, []);
+    // The dependency array must be empty to set up the listeners only once.
+    }, []); // 👈 THE FIX IS HERE
 
-    const outlineSize = isHovering ? 40 : 30;
-    const dotSize = isHovering ? 0 : 8;
+    const outlineSize = isHovering ? 25 : 30;
+    const dotSize = isHovering ? 5 : 8;
 
     return (
         <>
             {/* Cursor Outline */}
             <div
                 ref={outlineRef}
-                className="pointer-events-none fixed top-0 left-0 z-[9999] rounded-full border-2 border-blue-600 transition-[width,height,opacity] duration-300 ease-out -translate-x-1/2 -translate-y-1/2"
+                className={`pointer-events-none fixed top-0 left-0 z-[9999] rounded-full border-blue-600 transition-[width,height] duration-300 ease-out -translate-x-1/2 -translate-y-1/2 ${
+                    isHovering ? 'border-4' : 'border-2'
+                }`}
                 style={{
                     width: `${outlineSize}px`,
                     height: `${outlineSize}px`,
-                    opacity: isHovering ? 0.5 : 1,
-                    willChange: 'transform',
+                    willChange: 'transform, width, height',
                 }}
             />
             {/* Cursor Dot */}
@@ -109,7 +92,7 @@ export default function CustomCursor() {
                 style={{
                     width: `${dotSize}px`,
                     height: `${dotSize}px`,
-                    willChange: 'transform',
+                    willChange: 'transform, width, height',
                 }}
             />
         </>
